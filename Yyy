@@ -1,0 +1,240 @@
+                        local okItems, items = pcall(getItems, p)
+                        if not okItems then items = {} end
+                        local best = getBestItem(items)
+
+                        -- เธเนเธฒเธขเธเธทเนเธญ (เธซเธฑเธง)
+                        local head = char:FindFirstChild("Head")
+                        if nameTagOn and head and not head:FindFirstChild("JackNameTag") then
+                            local bg = new("BillboardGui", {
+                                Name = "JackNameTag",
+                                Size = UDim2.new(0, 170, 0, 30),
+                                StudsOffset = Vector3.new(0, 2.4, 0),
+                                AlwaysOnTop = true,
+                            }, head)
+                            new("TextLabel", {
+                                Size = UDim2.new(1, 0, 1, 0),
+                                BackgroundTransparency = 1,
+                                Text = p.DisplayName .. " (@" .. p.Name .. ")",
+                                TextColor3 = Color3.fromRGB(255, 255, 255),
+                                TextStrokeTransparency = 0,
+                                TextSize = 13, Font = FONT,
+                            }, bg)
+                        end
+
+                        -- เธเนเธฒเธขเธซเธฑเธง "เธเธญเธเธ”เธตเธชเธธเธ”" (เธญเธขเธนเนเธฅเนเธฒเธเธเนเธฒเธขเธเธทเนเธญ)
+                        if headTagOn and head and not head:FindFirstChild("JackHeadTag") then
+                            local bg = new("BillboardGui", {
+                                Name = "JackHeadTag",
+                                Size = UDim2.new(0, 200, 0, 22),
+                                StudsOffset = Vector3.new(0, 1.4, 0),
+                                AlwaysOnTop = true,
+                            }, head)
+                            new("TextLabel", {
+                                Name = "TagText",
+                                Size = UDim2.new(1, 0, 1, 0),
+                                BackgroundTransparency = 1,
+                                RichText = true,
+                                Text = "...",
+                                TextStrokeTransparency = 0,
+                                TextSize = 12, Font = FONT,
+                            }, bg)
+                        end
+                        if headTagOn then
+                            local tag = head and head:FindFirstChild("JackHeadTag")
+                            if tag then
+                                local txt = "๐‘ป เนเธกเนเธกเธตเธเธญเธเนเธเธงเน"
+                                if best then
+                                    txt = "๐‘‘ " .. '<font color="#' .. best.hex .. '">'
+                                        .. escRich(best.name) .. "</font>"
+                                end
+                                if lastHeadTexts[p.Name] ~= txt then
+                                    lastHeadTexts[p.Name] = txt
+                                    tag.TagText.Text = txt
+                                end
+                            end
+                        end
+
+                        -- เธเนเธฒเธขเนเธญเน€เธ—เธกเนเธ•เนเน€เธ—เนเธฒ (เธเธทเนเธญเธเธญเธเน€เธฃเธทเธญเธเธชเธตเธ•เธฒเธก rarity)
+                        local root = char:FindFirstChild("HumanoidRootPart")
+                        if footTagOn and root and not char:FindFirstChild("JackFootTag") then
+                            local bg = new("BillboardGui", {
+                                Name = "JackFootTag",
+                                Adornee = root,
+                                Size = UDim2.new(0, 320, 0, 26),
+                                StudsOffset = Vector3.new(0, -3.6, 0),
+                                AlwaysOnTop = true,
+                            }, char)
+                            new("TextLabel", {
+                                Name = "TagText",
+                                Size = UDim2.new(1, 0, 1, 0),
+                                BackgroundTransparency = 1,
+                                RichText = true,
+                                Text = "๐“ฆ ...",
+                                TextStrokeTransparency = 0,
+                                TextSize = 13, Font = FONT,
+                            }, bg)
+                        end
+                        if footTagOn then
+                            local tag = char:FindFirstChild("JackFootTag")
+                            if tag then
+                                local txt
+                                if #items == 0 then
+                                    txt = "๐“ฆ เนเธกเนเธกเธตเธเธญเธเนเธเธงเน"
+                                else
+                                    -- เนเธชเนเนเธ”เนเธชเธนเธเธชเธธเธ” 5 เธเธดเนเธ เธชเธตเธ•เธฒเธก rarity เธเธญเธเนเธ•เนเธฅเธฐเธเธดเนเธ
+                                    local shown = math.min(#items, 5)
+                                    -- เธ–เนเธฒเธเธทเนเธญเธขเธฒเธงเธฃเธงเธกเธเธฑเธเน€เธเธดเธ เธ•เธฑเธ”เธเธณเธเธงเธเธเธดเนเธเธฅเธ
+                                    local plainLen = 0
+                                    for i = 1, shown do
+                                        plainLen = plainLen + #items[i].name + 3
+                                    end
+                                    while shown > 1 and plainLen > 95 do
+                                        plainLen = plainLen - #items[shown].name - 3
+                                        shown = shown - 1
+                                    end
+                                    local spans = {}
+                                    for i = 1, shown do
+                                        local e = items[i]
+                                        local label = escRich(e.name)
+                                            .. (e.count > 1 and (" x" .. e.count) or "")
+                                        table.insert(spans,
+                                            '<font color="#' .. e.hex .. '">' .. label .. "</font>")
+                                    end
+                                    txt = "๐“ฆ " .. table.concat(spans, " ยท ")
+                                    if #items > shown then
+                                        txt = txt .. ' <font color="#9E98B4">+' .. (#items - shown) .. "</font>"
+                                    end
+                                end
+                                if lastFootTexts[p.Name] ~= txt then
+                                    lastFootTexts[p.Name] = txt
+                                    tag.TagText.Text = txt
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(1)
+    end
+end)
+
+-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€ เธงเธเธเธฃเธญเธฑเธเน€เธ”เธ•เธเนเธญเธกเธนเธฅเน€เธกเธเธน (เธ—เธธเธ 0.5 เธงเธด เนเธเธเน€เธเนเธ hash) โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+task.spawn(function()
+    while screenGui.Parent do
+        pcall(function()
+            refreshPlayerList()
+            refreshDetail()
+            infoLabel.Text = "๐‘ฅ เธเธนเนเน€เธฅเนเธเนเธเน€เธเธดเธฃเนเธ: "
+                .. #Players:GetPlayers() .. " / " .. Players.MaxPlayers
+        end)
+        task.wait(0.5)
+    end
+end)
+
+-- เธเธนเนเน€เธฅเนเธเน€เธเนเธฒ/เธญเธญเธ โ’ เธเธฑเธเธเธฑเธเธฃเธตเน€เธเธฃเธ, เน€เธฅเธทเธญเธเธเธเธ—เธตเนเธญเธญเธเนเธฅเนเธงเนเธซเนเน€เธฅเธดเธเน€เธฅเธทเธญเธ
+Players.PlayerAdded:Connect(function()
+    if not screenGui.Parent then return end
+    invalidateCaches()
+end)
+Players.PlayerRemoving:Connect(function(p)
+    if not screenGui.Parent then return end
+    lastFootTexts[p.Name] = nil
+    lastHeadTexts[p.Name] = nil
+    if selectedPlayer == p then
+        selectedPlayer = nil
+    end
+    invalidateCaches()
+    pcall(refreshDetail)
+end)
+
+-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€ เธฃเธฐเธเธเธชเธฅเธฑเธเนเธ—เนเธ โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+local pages   = { page1, page2, page3 }
+local tabBtns = { tabBtn1, tabBtn2, tabBtn3 }
+local function showTab(n)
+    if not isLoggedIn then return end
+    for i, pg in ipairs(pages) do
+        pg.Visible = (i == n)
+    end
+    for i, b in ipairs(tabBtns) do
+        b.BackgroundColor3 = (i == n) and C.accent or C.side
+    end
+end
+onClick(tabBtn1, function() showTab(1) end)
+onClick(tabBtn2, function() showTab(2) end)
+onClick(tabBtn3, function() showTab(3) end)
+
+-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€ เธฃเธฐเธเธ Login โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+local function tryLogin()
+    if passBox.Text == PASSWORD then
+        isLoggedIn = true
+        loginContainer.Visible = false
+        playTween(mainFrame, 0.25, Enum.EasingStyle.Back, {
+            Size = MENU_SIZE, Position = MENU_POSITION,
+        })
+        showTab(1)
+        invalidateCaches()
+        refreshPlayerList()
+        refreshDetail()
+    else
+        passBox.Text = ""
+        passBox.PlaceholderText = "โ เธฃเธซเธฑเธชเธเนเธฒเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ!"
+        -- เธชเธฑเนเธเน เธ•เธญเธเธเธดเธกเธเนเธเธดเธ”
+        for _, off in ipairs({ -8, 8, -5, 5, 0 }) do
+            loginContainer.Position = UDim2.new(0, 50 + off, 0, 45)
+            task.wait(0.04)
+        end
+    end
+end
+onClick(submitBtn, tryLogin)
+passBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        pcall(tryLogin)
+    end
+end)
+
+-- โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€ เน€เธเธดเธ”/เธเธดเธ”เน€เธกเธเธน (เธเธธเนเธกเธงเธเธเธฅเธกเธฅเธญเธข + เธเธธเนเธกเธฅเธฑเธ” RightCtrl) โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+local menuOpen = true
+local function setMenu(open)
+    menuOpen = open
+    if open then
+        mainFrame.Visible = true
+        mainFrame.Size = UDim2.new(0, 20, 0, 20)
+        mainFrame.Position = UDim2.new(0.5, -10, 0.5, -10)
+        playTween(mainFrame, 0.3, Enum.EasingStyle.Back, {
+            Size = MENU_SIZE, Position = MENU_POSITION,
+        })
+    else
+        local t = playTween(mainFrame, 0.16, Enum.EasingStyle.Quad, {
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0.5, -10, 0.5, -10),
+        })
+        t.Completed:Connect(function()
+            if not menuOpen then
+                mainFrame.Visible = false
+            end
+        end)
+    end
+end
+
+onClick(floatingBtn, function()
+    if dragMoved then
+        dragMoved = false
+        return
+    end
+    setMenu(not menuOpen)
+end)
+
+-- เธเธธเนเธกเธฅเธฑเธ”เธเธตเธขเนเธเธญเธฃเนเธ”: RightControl เน€เธเธดเธ”/เธเธดเธ”เน€เธกเธเธน (เธเนเนเธ”เนเธเธเธกเธทเธญเธ–เธทเธญเธเนเธฒเธเธเธธเนเธกเธฅเธญเธข)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if not screenGui.Parent then return end
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        setMenu(not menuOpen)
+    end
+end)
+
+-- เธชเธ–เธฒเธเธฐเน€เธฃเธดเนเธกเธ•เนเธ: เนเธชเธ”เธเธซเธเนเธฒ login
+mainFrame.Size = MENU_SIZE
+mainFrame.Position = MENU_POSITION
+refreshPlayerList()
